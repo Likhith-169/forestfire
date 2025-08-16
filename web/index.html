@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Forest Fire Detection System</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Enhanced Color Palette */
+            --primary-color: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --primary-light: #60a5fa;
+            --secondary-color: #8b5cf6;
+            --secondary-dark: #7c3aed;
+            --accent-color: #f59e0b;
+            --accent-dark: #d97706;
+            --danger-color: #ef4444;
+            --danger-dark: #dc2626;
+            --success-color: #10b981;
+            --success-dark: #059669;
+            --warning-color: #f97316;
+            --warning-dark: #ea580c;
+            
+            /* Neutral Colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Background Colors */
+            --dark-bg: #0f172a;
+            --dark-bg-secondary: #1e293b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg-dark: rgba(30, 41, 59, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-bg-dark: rgba(15, 23, 42, 0.8);
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            --gradient-success: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            
+            /* Spacing & Layout */
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --border-radius-lg: 24px;
+            --border-radius-xl: 32px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-2xl: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Typography */
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            --font-size-5xl: 3rem;
+            
+            /* Z-index */
+            --z-dropdown: 1000;
+            --z-sticky: 1020;
+            --z-fixed: 1030;
+            --z-modal-backdrop: 1040;
+            --z-modal: 1050;
+            --z-popover: 1060;
+            --z-tooltip: 1070;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-primary);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            color: var(--gray-900);
+            font-size: var(--font-size-base);
+            font-weight: 400;
+        }
+
+        /* Enhanced Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-10px, -10px) scale(1.05); }
+            50% { transform: translate(10px, -5px) scale(1.02); }
+            75% { transform: translate(-5px, 10px) scale(1.03); }
+        }
+
+        /* Enhanced Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: var(--border-radius-sm);
+            margin: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--border-radius-sm);
+            border: 2px solid transparent;
+            background-clip: content-box;
+            transition: var(--transition-normal);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--primary-dark), var(--secondary-dark));
+            transform: scale(1.1);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--glass-bg);
+        }
+
+        /* Enhanced Navbar */
+        .navbar {
+            background: var(--glass-bg-dark) !important;
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            transition: var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: var(--font-size-2xl);
+            color: white !important;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-brand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition-slow);
+        }
+
+        .navbar-brand:hover::before {
+            left: 100%;
+        }
+
+        .navbar-brand i {
+            color: var(--accent-color);
+            margin-right: 0.5rem;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5)); }
+            to { filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.8)); }
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--border-radius-xl);
+            color: var(--success-color);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            backdrop-filter: blur(10px);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+            transition: var(--transition-slow);
+        }
+
+        .status-indicator:hover::before {
+            left: 100%;
+        }
+
+        .status-indicator i {
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7; 
+                transform: scale(1.1);
+            }
+        }
+
+        /* Enhanced Main Container */
+        .main-container {
+            padding: 2rem 0;
+            margin-top: 80px;
+            position: relative;
+        }
+        
+        /* Enhanced Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-normal);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: var(--transition-normal);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1.75rem;
+            font-weight: 700;
+            font-size: var(--font-size-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition-slow);
+        }
+
+        .card:hover .card-header::before {
+            left: 100%;
+        }
+
+        .card-header i {
+            margin-right: 0.75rem;
+            color: var(--accent-color);
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Enhanced Map Container */
+        .map-container {
+            height: 700px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+            animation: mapShine 8s ease-in-out infinite;
+        }
+
+        @keyframes mapShine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: var(--border-radius);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Enhanced Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: var(--transition-normal);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: var(--transition-slow);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover::after {
+            left: 100%;
+        }
+        
+        .stat-number {
+            font-size: var(--font-size-5xl);
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .stat-label {
+            color: var(--gray-600);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            color: rgba(59, 130, 246, 0.1);
+            transition: var(--transition-normal);
+        }
+
+        .stat-card:hover .stat-icon {
+            color: rgba(59, 130, 246, 0.3);
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Enhanced Control Panel */
+        .control-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: var(--transition-normal);
+        }
+
+        .control-panel:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Enhanced Region Selector */
+        .region-selector {
+            margin-bottom: 2.5rem;
+        }
+
+        .region-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            padding: 1rem 1.75rem;
+            margin: 0.5rem;
+            transition: var(--transition-normal);
+            font-weight: 600;
+            color: var(--gray-700);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .region-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            transition: var(--transition-normal);
+            z-index: -1;
+        }
+
+        .region-btn:hover, .region-btn.active {
+            color: white;
+            border-color: transparent;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .region-btn:hover::before, .region-btn.active::before {
+            left: 0;
+        }
+
+        .region-btn i {
+            margin-right: 0.5rem;
+            transition: var(--transition-normal);
+        }
+
+        .region-btn:hover i, .region-btn.active i {
+            transform: scale(1.2);
+        }
+
+        /* Enhanced Form Controls */
+        .form-control, .form-select {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            padding: 1rem 1.25rem;
+            font-size: var(--font-size-base);
+            transition: var(--transition-normal);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 0.75rem;
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Enhanced Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--border-radius-lg);
+            padding: 1.25rem 2.5rem;
+            font-weight: 700;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: var(--transition-slow);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: var(--transition-normal);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* Enhanced Progress Bar */
+        .progress {
+            height: 12px;
+            border-radius: var(--border-radius-sm);
+            background: rgba(226, 232, 240, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius-sm);
+            transition: width var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: progressShine 2s ease-in-out infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Enhanced Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* Enhanced Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: currentColor;
+            opacity: 0.8;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-warning {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Map Markers */
+        .fire-marker {
+            background: var(--danger-color);
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+            animation: firePulse 2s infinite;
+        }
+
+        @keyframes firePulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+            }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 0 30px rgba(220, 38, 38, 0.8);
+            }
+        }
+        
+        .hotspot-marker {
+            background: var(--accent-color);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-number {
+                font-size: var(--font-size-4xl);
+            }
+
+            .stat-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+
+            .control-panel {
+                padding: 1.5rem;
+            }
+
+            .card-header {
+                padding: 1.25rem;
+                font-size: var(--font-size-base);
+        }
+        
+        .region-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: var(--font-size-sm);
+            }
+
+            .btn-primary {
+                padding: 1rem 2rem;
+                font-size: var(--font-size-base);
+            }
+
+            .navbar-brand {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 0.5rem;
+            }
+
+            .stats-grid {
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .control-panel {
+                padding: 1rem;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+
+            .region-btn {
+                margin: 0.25rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Enhanced Animations */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateX(-100%) scale(0.9); 
+                opacity: 0;
+            }
+            to { 
+                transform: translateX(0) scale(1); 
+                opacity: 1;
+            }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { 
+                transform: scale(0.3); 
+                opacity: 0; 
+            }
+            50% { 
+                transform: scale(1.05); 
+            }
+            70% { 
+                transform: scale(0.9); 
+            }
+            100% { 
+                transform: scale(1); 
+                opacity: 1; 
+            }
+        }
+
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Custom Popup Styles */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .leaflet-popup-content {
+            margin: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .popup-header {
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .popup-header i {
+            margin-right: 0.5rem;
+        }
+
+        .popup-content {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .popup-content p {
+            margin-bottom: 0.25rem;
+        }
+
+        .popup-content strong {
+            color: #1f2937;
+        }
+
+        /* Enhanced Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-spinner .spinner-border {
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.25rem;
+        }
+
+        /* Enhanced Tooltips */
+        .tooltip-custom {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-custom::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .tooltip-custom:hover::after {
+            opacity: 1;
+        }
+
+        /* Enhanced Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-control-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .map-control-btn:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Enhanced Statistics Animation */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stat-card:hover::after {
+            left: 100%;
+        }
+
+        /* Enhanced Alert System */
+        .alert-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert-custom {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .alert-custom.show {
+            transform: translateX(0);
+        }
+
+        /* Enhanced Progress Bar */
+        .progress-enhanced {
+            height: 12px;
+            border-radius: 6px;
+            background: rgba(226, 232, 240, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-enhanced .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 6px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-enhanced .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-fire"></i>
+                Advanced Forest Fire Detection
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="status-indicator">
+                    <i class="fas fa-circle"></i>
+                    System Online
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Enhanced Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-3">Processing Detection...</h4>
+            <p class="text-light">Analyzing satellite data</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Alert Container -->
+    <div class="alert-container" id="alert-container"></div>
+
+    <div class="main-container">
+        <div class="container">
+                        <!-- Enhanced Header -->
+            <div class="row mb-5 fade-in">
+                <div class="col-12 text-center">
+                    <h1 class="text-white mb-4" style="font-size: var(--font-size-5xl); font-weight: 800; text-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                        <i class="fas fa-fire text-warning me-4" style="filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.6));"></i>
+                        Forest Fire Detection Dashboard
+                    </h1>
+                    <p class="text-white opacity-90" style="font-size: var(--font-size-xl); font-weight: 500; margin-bottom: 1rem;">
+                        Advanced satellite-based monitoring with AI-powered detection
+                    </p>
+                    <div class="mt-4">
+                        <div class="d-inline-flex align-items-center bg-white bg-opacity-10 px-4 py-2 rounded-pill">
+                            <i class="fas fa-keyboard text-warning me-3"></i>
+                            <small class="text-white opacity-90 fw-semibold">
+                                Press <kbd class="bg-dark text-white px-2 py-1 rounded">Ctrl+Enter</kbd> to start detection, 
+                                <kbd class="bg-dark text-white px-2 py-1 rounded">Esc</kbd> to cancel
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                        <div class="stat-number" id="total-events">0</div>
+                        <div class="stat-label">Fire Events</div>
+                    </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-map"></i>
+                </div>
+                        <div class="stat-number" id="total-area">0</div>
+                        <div class="stat-label">Area Affected (ha)</div>
+                    </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                </div>
+                        <div class="stat-number" id="avg-confidence">0%</div>
+                        <div class="stat-label">Avg Confidence</div>
+                    </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                </div>
+                        <div class="stat-number" id="hotspots">0</div>
+                        <div class="stat-label">Hotspots</div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="row">
+                <!-- Map Column -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Real-time Fire Detection Map
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="map-container">
+                                <div id="map"></div>
+                                <!-- Enhanced Map Controls -->
+                                <div class="map-controls">
+                                    <button class="map-control-btn tooltip-custom" data-tooltip="Reset View" onclick="resetMapView()">
+                                        <i class="fas fa-home"></i>
+                                    </button>
+                                    <button class="map-control-btn tooltip-custom" data-tooltip="Toggle Satellite" onclick="toggleMapLayer()">
+                                        <i class="fas fa-satellite"></i>
+                                    </button>
+                                    <button class="map-control-btn tooltip-custom" data-tooltip="Clear Markers" onclick="clearAllMarkers()">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="col-lg-4">
+                    <!-- Detection Controls -->
+                    <div class="control-panel">
+                        <div class="card-header mb-3">
+                            <i class="fas fa-cogs"></i>
+                            Detection Controls
+                        </div>
+
+                            <!-- Region Selector -->
+                            <div class="region-selector">
+                                <label class="form-label">Select Region:</label>
+                                <div class="d-flex flex-wrap">
+                                <button class="btn region-btn active" data-region="california">
+                                    <i class="fas fa-map-marker-alt me-2"></i>California
+                                </button>
+                                <button class="btn region-btn" data-region="australia">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Australia
+                                </button>
+                                <button class="btn region-btn" data-region="global">
+                                    <i class="fas fa-globe me-2"></i>Global
+                                </button>
+                                </div>
+                            </div>
+
+                            <!-- Date Range -->
+                            <div class="mb-3">
+                                <label class="form-label">Date Range:</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="date" class="form-control" id="start-date">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="date" class="form-control" id="end-date">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Satellite Selection -->
+                            <div class="mb-3">
+                            <label class="form-label">Satellite Source:</label>
+                                <select class="form-select" id="satellite">
+                                    <option value="sentinel2">Sentinel-2</option>
+                                    <option value="landsat">Landsat</option>
+                                </select>
+                            </div>
+
+                            <!-- Cloud Cover -->
+                        <div class="mb-4">
+                            <label class="form-label">Max Cloud Cover: <span id="cloud-cover-value" class="text-primary fw-bold">40%</span></label>
+                                <input type="range" class="form-range" id="cloud-cover" min="0" max="100" value="40">
+                            </div>
+
+                            <!-- Detection Button -->
+                            <button class="btn btn-primary w-100" id="detect-btn">
+                                <i class="fas fa-search me-2"></i>
+                                Start Detection
+                            </button>
+
+                            <!-- Progress -->
+                        <div class="loading mt-4" id="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            <p class="mt-3 mb-2 fw-semibold">Processing satellite data...</p>
+                            <div class="progress-enhanced">
+                                    <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted" id="progress-text">Initializing...</small>
+                        </div>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div class="results-panel">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar"></i>
+                            Detection Results
+                        </div>
+                        <div class="card-body">
+                            <div id="results-content">
+                                <p class="text-muted text-center">No detection results yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-bell"></i>
+                            Recent Alerts
+                        </div>
+                        <div class="card-body">
+                            <div id="alerts-container">
+                                <p class="text-muted text-center">No alerts at this time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Global variables
+        let map;
+        let currentDetection = null;
+        let markers = [];
+        let satelliteLayer;
+        let streetLayer;
+        let currentLayer = 'street';
+        
+        // Determine API base URL based on current location
+        function getApiBaseUrl() {
+            if (location.protocol === 'file:') {
+                return 'http://127.0.0.1:8000/api/v1';
+            } else {
+                return `${location.protocol}//${location.hostname}:${location.port || 8000}/api/v1`;
+            }
+        }
+        
+        const API_BASE_URL = getApiBaseUrl();
+
+        // Initialize map with enhanced styling
+        function initMap() {
+            map = L.map('map').setView([37.7749, -122.4194], 6);
+            
+            // Street layer
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // Satellite layer
+            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri',
+                maxZoom: 18
+            });
+        }
+
+        // Initialize date inputs with better defaults
+        function initDateInputs() {
+            const today = new Date();
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            document.getElementById('start-date').value = weekAgo.toISOString().split('T')[0];
+        }
+
+        // Enhanced region selection
+        function initRegionSelector() {
+            const regionBtns = document.querySelectorAll('.region-btn');
+            regionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    regionBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const region = this.dataset.region;
+                    updateMapForRegion(region);
+                    
+                    // Add animation
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        }
+
+        // Update map for selected region with smooth transitions
+        function updateMapForRegion(region) {
+            const regions = {
+                california: { lat: 36.7783, lng: -119.4179, zoom: 6 },
+                australia: { lat: -25.2744, lng: 133.7751, zoom: 4 },
+                global: { lat: 20, lng: 0, zoom: 2 }
+            };
+            
+            const coords = regions[region];
+            if (coords) {
+                map.flyTo([coords.lat, coords.lng], coords.zoom, {
+                    duration: 1.5,
+                    easeLinearity: 0.25
+                });
+            }
+        }
+
+        // Enhanced cloud cover slider
+        function initCloudCoverSlider() {
+            const slider = document.getElementById('cloud-cover');
+            const value = document.getElementById('cloud-cover-value');
+            
+            slider.addEventListener('input', function() {
+                value.textContent = this.value + '%';
+                value.style.color = this.value > 70 ? '#dc2626' : this.value > 40 ? '#ea580c' : '#2563eb';
+            });
+        }
+
+        // Clear map markers with animation
+        function clearMarkers() {
+            markers.forEach(marker => {
+                if (marker && typeof marker.setOpacity === 'function') {
+                    marker.setOpacity(0);
+                    setTimeout(() => {
+                        if (map.hasLayer(marker)) {
+                            map.removeLayer(marker);
+                        }
+                    }, 300);
+                } else if (marker && map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            });
+            markers = [];
+        }
+
+        // Enhanced fire detection markers
+        function addFireMarkers(detections) {
+            if (!Array.isArray(detections)) {
+                console.warn('Detections is not an array:', detections);
+                return;
+            }
+
+            detections.forEach((detection, index) => {
+                try {
+                const coords = getPolygonCenter(detection.geometry);
+                    if (coords && Array.isArray(coords) && coords.length === 2) {
+                    const marker = L.circleMarker(coords, {
+                            radius: Math.max(8, Math.min(25, (detection.area_ha || 10) / 5)),
+                            fillColor: '#dc2626',
+                            color: '#ffffff',
+                            weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+
+                        // Add popup with enhanced styling
+                        const popupContent = `
+                            <div class="popup-header">
+                                <i class="fas fa-fire"></i>
+                                Fire Detection #${index + 1}
+                        </div>
+                            <div class="popup-content">
+                                <p><strong>Area:</strong> ${(detection.area_ha || 0).toFixed(2)} ha</p>
+                                <p><strong>Confidence:</strong> ${((detection.confidence || 0) * 100).toFixed(1)}%</p>
+                                <p><strong>Location:</strong> ${detection.location || 'Unknown'}</p>
+                                <p><strong>NBR:</strong> ${detection.indices?.nbr_mean?.toFixed(3) || 'N/A'}</p>
+                                <p><strong>dNBR:</strong> ${detection.indices?.dnbr_mean?.toFixed(3) || 'N/A'}</p>
+                            </div>
+                        `;
+
+                        marker.bindPopup(popupContent, {
+                            maxWidth: 300,
+                            className: 'custom-popup'
+                        });
+
+                        // Add entrance animation with error handling
+                        if (typeof marker.setOpacity === 'function') {
+                            marker.setOpacity(0);
+                            setTimeout(() => {
+                                if (marker && typeof marker.setOpacity === 'function') {
+                                    marker.setOpacity(1);
+                                }
+                            }, index * 100);
+                        }
+
+                    markers.push(marker);
+                    } else {
+                        console.warn('Invalid coordinates for detection:', detection);
+                    }
+                } catch (error) {
+                    console.error('Error creating marker for detection:', error, detection);
+                }
+            });
+        }
+
+        // Get center of polygon with better error handling
+        function getPolygonCenter(geometry) {
+            try {
+                if (!geometry || !geometry.type || !geometry.coordinates) {
+                    console.warn('Invalid geometry object:', geometry);
+                    return null;
+                }
+
+                if (geometry.type === 'Polygon' && Array.isArray(geometry.coordinates) && geometry.coordinates[0]) {
+                const coords = geometry.coordinates[0];
+                    if (!Array.isArray(coords) || coords.length === 0) {
+                        console.warn('Invalid polygon coordinates:', coords);
+                        return null;
+                    }
+
+                    const lats = coords.map(c => c[1]).filter(lat => typeof lat === 'number' && !isNaN(lat));
+                    const lngs = coords.map(c => c[0]).filter(lng => typeof lng === 'number' && !isNaN(lng));
+
+                    if (lats.length === 0 || lngs.length === 0) {
+                        console.warn('No valid coordinates found:', coords);
+                        return null;
+                    }
+
+                return [
+                    (Math.min(...lats) + Math.max(...lats)) / 2,
+                    (Math.min(...lngs) + Math.max(...lngs)) / 2
+                ];
+                } else if (geometry.type === 'Point' && Array.isArray(geometry.coordinates) && geometry.coordinates.length === 2) {
+                    // Handle Point geometry type
+                    return [geometry.coordinates[1], geometry.coordinates[0]]; // [lat, lng]
+            }
+                
+                console.warn('Unsupported geometry type:', geometry.type);
+                return null;
+            } catch (error) {
+                console.error('Error calculating polygon center:', error);
+            return null;
+            }
+        }
+
+        // Enhanced detection start
+        async function startDetection() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const satellite = document.getElementById('satellite').value;
+            const cloudCover = document.getElementById('cloud-cover').value;
+            const activeRegion = document.querySelector('.region-btn.active').dataset.region;
+
+            if (!startDate || !endDate) {
+                showNotification('Please select start and end dates', 'warning');
+                return;
+            }
+
+            const bounds = getRegionBounds(activeRegion);
+            if (!bounds) {
+                showNotification('Invalid region selected', 'error');
+                return;
+            }
+
+            // Show enhanced loading overlay
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('detect-btn').disabled = true;
+            document.getElementById('detect-btn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bounds: bounds,
+                        start_date: startDate,
+                        end_date: endDate,
+                        satellite: satellite,
+                        max_cloud_cover: parseFloat(cloudCover)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                currentDetection = result.request_id;
+
+                showNotification('Detection started successfully!', 'success');
+                await pollDetectionResults(result.request_id);
+
+            } catch (error) {
+                console.error('Detection error:', error);
+                showNotification('Error starting detection: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('detect-btn').disabled = false;
+                document.getElementById('detect-btn').innerHTML = '<i class="fas fa-search me-2"></i>Start Detection';
+            }
+        }
+
+        // Enhanced polling with better progress updates
+        async function pollDetectionResults(requestId) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            while (true) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/status/${requestId}`);
+                    const status = await response.json();
+
+                    progressBar.style.width = (status.progress * 100) + '%';
+                    progressText.textContent = status.message;
+
+                    if (status.status === 'completed') {
+                        const resultsResponse = await fetch(`${API_BASE_URL}/results/${requestId}`);
+                        const results = await resultsResponse.json();
+                        
+                        displayResults(results);
+                        showNotification('Detection completed successfully!', 'success');
+                        break;
+                    } else if (status.status === 'failed') {
+                        throw new Error('Detection failed');
+                    }
+
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                } catch (error) {
+                    console.error('Polling error:', error);
+                    showNotification('Error checking detection status: ' + error.message, 'error');
+                    break;
+                }
+            }
+        }
+
+        // Enhanced results display
+        function displayResults(results) {
+            try {
+            clearMarkers();
+
+                if (results && results.detections && Array.isArray(results.detections) && results.detections.length > 0) {
+                addFireMarkers(results.detections);
+            }
+
+                // Update statistics with animation
+                const summary = results?.summary || {};
+                animateNumber('total-events', summary.total_events || 0);
+                animateNumber('total-area', summary.total_area_ha || 0, 1);
+                animateNumber('avg-confidence', (summary.mean_confidence || 0) * 100, 1, '%');
+
+            // Display results in panel
+            const resultsContent = document.getElementById('results-content');
+            if (results.detections && results.detections.length > 0) {
+                resultsContent.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Detection completed successfully!
+                    </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Events:</strong></p>
+                                <p class="mb-1"><strong>Area:</strong></p>
+                                <p class="mb-1"><strong>Largest:</strong></p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-end">${summary.total_events}</p>
+                                <p class="mb-1 text-end">${summary.total_area_ha.toFixed(2)} ha</p>
+                                <p class="mb-1 text-end">${summary.largest_event_ha.toFixed(2)} ha</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Processing time: ${results.metadata.processing_time?.toFixed(1) || 'N/A'} seconds
+                        </small>
+                `;
+            } else {
+                resultsContent.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No fire events detected in the specified area and time range.
+                    </div>
+                `;
+            }
+
+            if (results.detections && results.detections.length > 0) {
+                addAlert(`Fire detection completed: ${summary.total_events} events found`, 'warning');
+            }
+            } catch (error) {
+                console.error('Error displaying results:', error);
+                showNotification('Error displaying results: ' + error.message, 'error');
+            }
+        }
+
+        // Animate number changes
+        function animateNumber(elementId, targetValue, decimals = 0, suffix = '') {
+            const element = document.getElementById(elementId);
+            const startValue = parseFloat(element.textContent.replace(/[^\d.-]/g, '')) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentValue = startValue + (targetValue - startValue) * progress;
+                element.textContent = currentValue.toFixed(decimals) + suffix;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+
+            requestAnimationFrame(updateNumber);
+        }
+
+        // Get region bounds
+        function getRegionBounds(region) {
+            const regions = {
+                california: [-124.5, 32.5, -114.0, 42.0],
+                australia: [113.0, -44.0, 154.0, -10.0],
+                global: [-180, -90, 180, 90]
+            };
+            return regions[region];
+        }
+
+        // Enhanced alert system
+        function addAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alerts-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show slide-in`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            alertsContainer.insertBefore(alertDiv, alertsContainer.firstChild);
+            
+            // Remove old alerts
+            const alerts = alertsContainer.querySelectorAll('.alert');
+            if (alerts.length > 5) {
+                alerts[alerts.length - 1].remove();
+            }
+        }
+
+        // Enhanced map control functions
+        function resetMapView() {
+            const activeRegion = document.querySelector('.region-btn.active').dataset.region;
+            updateMapForRegion(activeRegion);
+            showNotification('Map view reset', 'info');
+        }
+
+        function toggleMapLayer() {
+            if (currentLayer === 'street') {
+                map.removeLayer(streetLayer);
+                map.addLayer(satelliteLayer);
+                currentLayer = 'satellite';
+                showNotification('Switched to satellite view', 'info');
+            } else {
+                map.removeLayer(satelliteLayer);
+                map.addLayer(streetLayer);
+                currentLayer = 'street';
+                showNotification('Switched to street view', 'info');
+            }
+        }
+
+        function clearAllMarkers() {
+            clearMarkers();
+            showNotification('All markers cleared', 'info');
+        }
+
+        // Enhanced notification system
+        function showNotification(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-custom alert-${type === 'error' ? 'danger' : type}`;
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'} me-2"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            // Show animation
+            setTimeout(() => alertDiv.classList.add('show'), 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            initDateInputs();
+            initRegionSelector();
+            initCloudCoverSlider();
+            
+            document.getElementById('detect-btn').addEventListener('click', startDetection);
+            
+            // Add welcome notification
+            setTimeout(() => {
+                showNotification('Advanced Forest Fire Detection System is ready!', 'success');
+            }, 1000);
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    startDetection();
+                }
+                if (e.key === 'Escape') {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }
+            });
+
+            // Add tooltip initialization
+            const tooltips = document.querySelectorAll('.tooltip-custom');
+            tooltips.forEach(tooltip => {
+                tooltip.addEventListener('mouseenter', function() {
+                    this.setAttribute('data-tooltip', this.getAttribute('data-tooltip'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

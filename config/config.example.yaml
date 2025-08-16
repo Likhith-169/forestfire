@@ -1,0 +1,350 @@
+# Advanced Forest Fire Detection System Configuration
+# Copy this file to config.yaml and modify as needed
+
+# System Configuration
+system:
+  name: "Advanced Forest Fire Detection System"
+  version: "2.0.0"
+  environment: "development"  # development, staging, production
+  debug: true
+  log_level: "INFO"
+  timezone: "UTC"
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  max_connections: 1000
+  timeout: 300
+  rate_limit:
+    requests_per_minute: 100
+    burst_size: 20
+  cors:
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["*"]
+    allow_headers: ["*"]
+
+# Database Configuration
+database:
+  type: "postgresql"  # postgresql, sqlite, mysql
+  host: "localhost"
+  port: 5432
+  name: "forestfire_db"
+  user: "forestfire_user"
+  password: "your_password_here"
+  pool_size: 20
+  max_overflow: 30
+  echo: false
+
+# Redis Configuration (for caching and task queues)
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+  max_connections: 50
+
+# Celery Configuration (for background tasks)
+celery:
+  broker_url: "redis://localhost:6379/1"
+  result_backend: "redis://localhost:6379/2"
+  task_serializer: "json"
+  result_serializer: "json"
+  accept_content: ["json"]
+  timezone: "UTC"
+  enable_utc: true
+  worker_concurrency: 4
+  task_acks_late: true
+  worker_prefetch_multiplier: 1
+
+# Satellite Data Sources
+satellite_data:
+  # NASA FIRMS VIIRS hotspots
+  viirs:
+    enabled: true
+    base_url: "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
+    resolution: 375  # meters
+    update_frequency: "hourly"
+    max_cloud_cover: 80
+    
+  # NASA FIRMS MODIS hotspots
+  modis:
+    enabled: true
+    base_url: "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
+    resolution: 1000  # meters
+    update_frequency: "daily"
+    max_cloud_cover: 80
+    
+  # Sentinel-2 MSI
+  sentinel2:
+    enabled: true
+    resolution: 10  # meters
+    update_frequency: "5_days"
+    max_cloud_cover: 40
+    bands: ["B2", "B3", "B4", "B8", "B11", "B12"]
+    collection: "sentinel-2-l2a"
+    
+  # Landsat 8/9 OLI/TIRS
+  landsat:
+    enabled: true
+    resolution: 30  # meters
+    update_frequency: "16_days"
+    max_cloud_cover: 30
+    bands: ["B2", "B3", "B4", "B5", "B6", "B7", "B10", "B11"]
+    collection: "landsat-c2-l2"
+    
+  # Google Earth Engine (optional)
+  gee:
+    enabled: false
+    project: "your-gee-project"
+    service_account_key: "path/to/service-account.json"
+
+# Detection Algorithm Configuration
+detection:
+  # Thermal hotspot detection
+  thermal:
+    enabled: true
+    brightness_temp_threshold: 320  # Kelvin
+    mir_nir_ratio_threshold: 0.8
+    min_hotspot_size: 3  # pixels
+    temporal_persistence: 2  # consecutive detections required
+    
+  # Optical confirmation
+  optical:
+    enabled: true
+    nbr_threshold: 0.1
+    dnbr_threshold: -0.2
+    bai_threshold: 0.3
+    ndvi_threshold: 0.2
+    min_burn_area: 10000  # square meters
+    buffer_distance: 2000  # meters
+    
+  # Machine Learning refinement
+  ml:
+    enabled: true
+    model_type: "ensemble"  # ensemble, unet, transformer
+    confidence_threshold: 0.6
+    use_pretrained: true
+    model_path: "models/fire_detection_model.pth"
+    
+  # Spatial analysis
+  spatial:
+    enabled: true
+    min_polygon_area: 5000  # square meters
+    simplify_tolerance: 10  # meters
+    buffer_analysis: true
+    slope_analysis: true
+    
+  # Temporal analysis
+  temporal:
+    enabled: true
+    time_series_length: 30  # days
+    change_detection: true
+    trend_analysis: true
+    seasonality_removal: true
+
+# Machine Learning Models
+ml_models:
+  # U-Net for semantic segmentation
+  unet:
+    architecture: "unet"
+    encoder: "resnet34"
+    encoder_weights: "imagenet"
+    in_channels: 6
+    classes: 2
+    activation: "sigmoid"
+    
+  # Transformer for sequence modeling
+  transformer:
+    model_type: "vit"  # Vision Transformer
+    patch_size: 16
+    embed_dim: 768
+    num_heads: 12
+    num_layers: 12
+    
+  # Ensemble methods
+  ensemble:
+    models: ["unet", "transformer", "xgboost"]
+    weights: [0.4, 0.4, 0.2]
+    voting_method: "soft"
+    
+  # XGBoost for classification
+  xgboost:
+    max_depth: 6
+    learning_rate: 0.1
+    n_estimators: 100
+    subsample: 0.8
+    colsample_bytree: 0.8
+
+# Data Processing
+data_processing:
+  # Cloud masking
+  cloud_masking:
+    enabled: true
+    method: "s2cloudless"  # s2cloudless, fmask, ml
+    threshold: 0.4
+    
+  # Atmospheric correction
+  atmospheric_correction:
+    enabled: true
+    method: "sen2cor"  # sen2cor, 6s, dark_object
+    
+  # Geometric correction
+  geometric_correction:
+    enabled: true
+    method: "automatic"
+    reference_image: null
+    
+  # Radiometric calibration
+  radiometric_calibration:
+    enabled: true
+    method: "automatic"
+    scale_factor: 10000
+
+# Performance and Optimization
+performance:
+  # Parallel processing
+  parallel:
+    enabled: true
+    max_workers: 8
+    chunk_size: 1024
+    
+  # Memory management
+  memory:
+    max_memory_gb: 16
+    chunk_size_mb: 512
+    use_dask: true
+    
+  # Caching
+  caching:
+    enabled: true
+    cache_dir: "cache"
+    max_cache_size_gb: 10
+    ttl_hours: 24
+
+# Monitoring and Logging
+monitoring:
+  # Metrics collection
+  metrics:
+    enabled: true
+    prometheus_port: 9090
+    collect_interval: 60  # seconds
+    
+  # Health checks
+  health_checks:
+    enabled: true
+    check_interval: 30  # seconds
+    timeout: 10  # seconds
+    
+  # Alerting
+  alerting:
+    enabled: true
+    webhook_url: null
+    email:
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: "your_email@gmail.com"
+      password: "your_app_password"
+
+# Security
+security:
+  # Authentication
+  authentication:
+    enabled: false
+    method: "jwt"  # jwt, oauth, api_key
+    jwt_secret: "your-secret-key"
+    jwt_expiry_hours: 24
+    
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst_size: 20
+    
+  # API keys
+  api_keys:
+    enabled: false
+    required: false
+
+# Geographic Regions
+regions:
+  california:
+    name: "California, USA"
+    bounds: [-124.5, 32.5, -114.0, 42.0]
+    center: [36.7783, -119.4179]
+    zoom: 6
+    description: "California wildfire monitoring region"
+    
+  australia:
+    name: "Australia"
+    bounds: [113.0, -44.0, 154.0, -10.0]
+    center: [-25.2744, 133.7751]
+    zoom: 4
+    description: "Australian bushfire monitoring region"
+    
+  amazon:
+    name: "Amazon Rainforest"
+    bounds: [-80.0, -20.0, -45.0, 5.0]
+    center: [-3.4653, -58.3801]
+    zoom: 5
+    description: "Amazon rainforest fire monitoring"
+    
+  siberia:
+    name: "Siberia, Russia"
+    bounds: [60.0, 50.0, 180.0, 80.0]
+    center: [65.0, 105.0]
+    zoom: 4
+    description: "Siberian wildfire monitoring"
+    
+  global:
+    name: "Global Monitoring"
+    bounds: [-180.0, -90.0, 180.0, 90.0]
+    center: [20.0, 0.0]
+    zoom: 2
+    description: "Global fire monitoring"
+
+# External Services
+external_services:
+  # Weather data
+  weather:
+    provider: "openweathermap"  # openweathermap, accuweather, weather_api
+    api_key: "your_api_key_here"
+    update_interval: 3600  # seconds
+    
+  # Emergency services
+  emergency:
+    enabled: false
+    webhook_url: null
+    notification_email: null
+    
+  # Social media
+  social_media:
+    twitter:
+      enabled: false
+      api_key: "your_twitter_api_key"
+      api_secret: "your_twitter_api_secret"
+    facebook:
+      enabled: false
+      access_token: "your_facebook_access_token"
+
+# Development and Testing
+development:
+  # Mock data
+  mock_data:
+    enabled: true
+    generate_fake_detections: true
+    fake_detection_count: 5
+    
+  # Testing
+  testing:
+    enabled: true
+    test_data_dir: "tests/data"
+    mock_external_apis: true
+    
+  # Debugging
+  debugging:
+    enabled: true
+    save_intermediate_results: true
+    verbose_logging: true
