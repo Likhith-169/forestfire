@@ -1,19 +1,19 @@
-# Advanced Forest Fire Detection System
+# Forest Fire Detection API
 
-A comprehensive, production-ready system for detecting and monitoring forest fires using satellite imagery, combining thermal hotspot detection with optical confirmation and advanced machine learning.
+A FastAPI-based service for detecting forest fires using satellite imagery analysis.
 
-## 🚀 Quick Start
-
-### 1. Install Dependencies
+## Setup
 ```bash
-# Install minimal dependencies (recommended for first run)
-pip install -r requirements-minimal.txt
-
-# OR install full dependencies (includes ML libraries)
 pip install -r requirements.txt
 ```
 
-### 2. Start the API Server
+## Development
+```bash
+uvicorn api.index:app --reload
+```
+
+## Production
+Deployed on Vercel
 ```bash
 python start_simple.py
 ```
